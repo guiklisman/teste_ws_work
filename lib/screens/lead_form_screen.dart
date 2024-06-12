@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import '../models/car.dart';
 import '../models/lead.dart';
 import '../providers/lead_provider.dart';
+import '../widgets/appbar_widget.dart';
+import '../widgets/custom_button.dart';
+import '../widgets/custom_text_form_field.dart';
 
 class LeadFormScreen extends StatefulWidget {
   final Car car;
@@ -18,6 +21,56 @@ class _LeadFormScreenState extends State<LeadFormScreen> {
   final _formKey = GlobalKey<FormState>();
   String _userName = '';
   String _userContact = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBarWidget(
+        title: 'Eu quero ${widget.car.nomeModelo}',
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              CustomTextFormField(
+                labelText: 'Nome',
+                prefixIcon: Icons.person,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira seu nome';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _userName = value!;
+                },
+              ),
+              CustomTextFormField(
+                labelText: 'Contato',
+                prefixIcon: Icons.contact_phone,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira seu contato';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _userContact = value!;
+                },
+              ),
+              const SizedBox(height: 20),
+              CustomButton(
+                title: "Enviar",
+                function: () => _submitForm,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
@@ -36,51 +89,5 @@ class _LeadFormScreenState extends State<LeadFormScreen> {
 
       Navigator.of(context).pop();
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Eu quero ${widget.car.nomeModelo}')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Nome'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu nome';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _userName = value!;
-                },
-              ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Contato'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu contato';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _userContact = value!;
-                },
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: const Text('Enviar'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

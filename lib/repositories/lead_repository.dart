@@ -15,6 +15,7 @@ class LeadRepository implements ILeadRepository {
 
   Future<Database> _initDB() async {
     String path = join(await getDatabasesPath(), 'leads.db');
+  
     return openDatabase(
       path,
       onCreate: (db, version) {

@@ -8,6 +8,7 @@ class Car {
   final String cor;
   final String nomeModelo;
   final double valor;
+  String url;
 
   Car({
     required this.id,
@@ -19,6 +20,8 @@ class Car {
     required this.cor,
     required this.nomeModelo,
     required this.valor,
+    this.url =
+        'https://mundodoautomovelparapcd.com.br/wp-content/uploads/2019/09/Novo-Onix-Plus-Premier-1-1280x720.jpg',
   });
 
   factory Car.fromJson(Map<String, dynamic> json) {
@@ -33,5 +36,9 @@ class Car {
       nomeModelo: json['nome_modelo'],
       valor: json['valor'].toDouble(),
     );
+  }
+
+  String valorFormatted() {
+    return 'R\$${valor.toStringAsFixed(2).replaceAll('.', ',')}';
   }
 }

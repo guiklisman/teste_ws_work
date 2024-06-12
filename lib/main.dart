@@ -8,31 +8,59 @@ import 'repositories/car_repository.dart';
 import 'repositories/lead_repository.dart';
 import 'screens/car_list_screen.dart';
 import 'services/api_service.dart';
+import 'services/background_service.dart';
 import 'services/lead_service.dart';
+import 'utils/theme.dart';
 
 void main() {
-  void backgroundFetchHeadlessTask(HeadlessTask task) async {
-    LeadService leadService = LeadService();
-    await leadService.postLeads();
-    BackgroundFetch.finish(task.taskId);
-  }
-
   WidgetsFlutterBinding.ensureInitialized();
-  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
+
+  BackgroundFetch.registerHeadlessTask(
+      BackgroundService.backgroundFetchHeadlessTask);
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (ctx) => CarProvider(CarRepository(ApiService())),
+          create: (context) => CarProvider(CarRepository(ApiService())),
         ),
         ChangeNotifierProvider(
-          create: (ctx) => LeadProvider(LeadRepository()),
+          create: (context) => LeadProvider(LeadRepository()),
         ),
       ],
       child: const MyApp(),
     ),
   );
+
+  initBackgroundFetch();
+}
+
+void initBackgroundFetch() {
+  print('Iniciou');
+  BackgroundFetch.configure(
+      BackgroundFetchConfig(
+        minimumFetchInterval: 1,
+        stopOnTerminate: false,
+        enableHeadless: true,
+        startOnBoot: true,
+      ), (String taskId) async {
+    LeadService leadService = LeadService();
+    await leadService.postLeads();
+    BackgroundFetch.finish(taskId);
+  }).then((int status) {
+    print('[BackgroundFetch] configure success: $status');
+  }).catchError((e) {
+    print('[BackgroundFetch] configure ERROR: $e');
+  });
+
+  // Agendar a primeira tarefa
+  BackgroundFetch.scheduleTask(TaskConfig(
+    taskId: "com.company.app.task",
+    delay: 10000, // 10 segundos
+    periodic: true,
+    stopOnTerminate: false,
+    enableHeadless: true,
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -42,9 +70,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Teste WS Works',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: GlobalThemeData.lightThemeData,
       home: const CarListScreen(),
     );
   }

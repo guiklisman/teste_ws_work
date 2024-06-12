@@ -11,6 +11,7 @@ class LeadService {
   static const String _leadUrl = 'https://www.wswork.com.br/cars/leads';
 
   Future<void> postLeads() async {
+    print('foi post');
     List<Lead> leads = await _leadRepository.getLeads();
     for (var lead in leads) {
       try {

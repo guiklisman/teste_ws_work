@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/car_provider.dart';
+import '../widgets/appbar_widget.dart';
 import '../widgets/car_list_item.dart';
+import '../widgets/states/no_content_widget.dart';
+import '../widgets/states/states_widget.dart';
 
 class CarListScreen extends StatelessWidget {
   const CarListScreen({super.key});
@@ -10,24 +13,26 @@ class CarListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Carros'),
+      appBar: const AppBarWidget(
+        title: "Carros - Ws Work",
       ),
       body: FutureBuilder(
         future: Provider.of<CarProvider>(context, listen: false).fetchCars(),
-        builder: (ctx, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.error != null) {
-            return const Center(child: Text('Ocorreu um erro!'));
-          } else {
-            return Consumer<CarProvider>(
-              builder: (ctx, carProvider, child) => ListView.builder(
+        builder: (context, snapshot) {
+          return StatesWidget<CarProvider>(
+            snapshot: snapshot,
+            consumerBuilder: (ctx, carProvider, child) {
+              if (carProvider.cars.isEmpty) {
+                return const NoContentWidget();
+              }
+              return ListView.builder(
                 itemCount: carProvider.cars.length,
-                itemBuilder: (ctx, i) => CarListItem(car: carProvider.cars[i]),
-              ),
-            );
-          }
+                itemBuilder: (ctx, i) => CarListItem(
+                  car: carProvider.cars[i],
+                ),
+              );
+            },
+          );
         },
       ),
     );
